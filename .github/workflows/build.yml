@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: "3.11"
     
     - name: Install dependencies
       run: |
@@ -25,10 +25,13 @@ jobs:
     
     - name: Build EXE
       run: |
-        pyinstaller --onefile --name snake_game snake_game.py
+        pyinstaller --onefile --name NeonTetris neon_tetris.py
     
-    - name: Upload EXE
-      uses: actions/upload-artifact@v4
+    - name: Upload Release Asset
+      uses: softprops/action-gh-release@v2
       with:
-        name: snake_game.exe
-        path: dist/snake_game.exe
+        files: dist/NeonTetris.exe
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
