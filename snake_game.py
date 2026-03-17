@@ -470,29 +470,53 @@ class SnakeGame:
         pygame.init()
         pygame.display.set_caption('🐍 終極貪吃蛇')
         
-        # 初始化字体 - 使用 STHeiti 支持繁体中文
+        # 初始化字体 - 根据操作系统选择合适的字体
         pygame.font.init()
         
-        # 尝试加载系统字体
-        font_path = '/System/Library/Fonts/STHeiti Light.ttc'
-        if os.path.exists(font_path):
-            try:
-                self.font = pygame.font.Font(font_path, 24)
-                self.font_large = pygame.font.Font(font_path, 48)
-                self.font_small = pygame.font.Font(font_path, 18)
-            except:
-                self.font = pygame.font.Font(None, 24)
-                self.font_large = pygame.font.Font(None, 48)
-                self.font_small = pygame.font.Font(None, 18)
-        else:
-            try:
-                self.font = pygame.font.SysFont('songti', 24)
-                self.font_large = pygame.font.SysFont('songti', 48)
-                self.font_small = pygame.font.SysFont('songti', 18)
-            except:
-                self.font = pygame.font.Font(None, 24)
-                self.font_large = pygame.font.Font(None, 48)
-                self.font_small = pygame.font.Font(None, 18)
+        import platform
+        system = platform.system()
+        
+        font_loaded = False
+        
+        if system == 'Darwin':  # macOS
+            font_path = '/System/Library/Fonts/STHeiti Light.ttc'
+            if os.path.exists(font_path):
+                try:
+                    self.font = pygame.font.Font(font_path, 24)
+                    self.font_large = pygame.font.Font(font_path, 48)
+                    self.font_small = pygame.font.Font(font_path, 18)
+                    font_loaded = True
+                except:
+                    pass
+        
+        if not font_loaded:
+            # Windows 或其他系统 - 尝试多种中文字体
+            windows_fonts = ['microsoftyahei', 'simhei', 'simsun', 'pingfang', 'notosanscjk']
+            mac_fonts = ['songti', 'applesdgothicneo', 'hiraginosansgb', 'pingfang']
+            
+            if system == 'Windows':
+                font_list = windows_fonts
+            else:
+                font_list = mac_fonts + windows_fonts
+            
+            for font_name in font_list:
+                try:
+                    self.font = pygame.font.SysFont(font_name, 24)
+                    self.font_large = pygame.font.SysFont(font_name, 48)
+                    self.font_small = pygame.font.SysFont(font_name, 18)
+                    # 测试是否能渲染中文
+                    test_surf = self.font.render('測試', True, (255, 255, 255))
+                    if test_surf.get_buffer().length > 0:
+                        font_loaded = True
+                        break
+                except:
+                    continue
+        
+        if not font_loaded:
+            # 最后回退到默认字体
+            self.font = pygame.font.Font(None, 24)
+            self.font_large = pygame.font.Font(None, 48)
+            self.font_small = pygame.font.Font(None, 18)
         
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pygame.time.Clock()
