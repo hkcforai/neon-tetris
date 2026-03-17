@@ -18,20 +18,35 @@ jobs:
       with:
         python-version: '3.11'
     
+    - name: Clean
+      run: |
+        if (Test-Path dist) { Remove-Item -Recurse -Force dist }
+        if (Test-Path build) { Remove-Item -Recurse -Force build }
+        if (Test-Path *.spec) { Remove-Item -Force *.spec }
+    
     - name: Install dependencies
       run: |
         pip install pygame pyinstaller
     
     - name: Build EXE
       run: |
-        Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
         pyinstaller --onefile --name NeonTetris neon_tetris.py
-        Get-ChildItem dist
+        dir dist
+    
+    - name: Upload to Release
+      run: |
+        $exe = Get-ChildItem dist/*.exe
+        Write-Host "Found: $($exe.Name)"
+        if ($exe) {
+          Write-Host "##[group]Upload $($exe.FullName)"
+        }
+      shell: pwsh
     
     - name: Upload Release Asset
       uses: softprops/action-gh-release@v2
       with:
-        files: dist/NeonTetris.exe
+        files: |
+          dist/NeonTetris.exe
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
