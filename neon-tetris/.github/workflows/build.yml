@@ -24,11 +24,14 @@ jobs:
     
     - name: Build EXE
       run: |
+        Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
         pyinstaller --onefile --name NeonTetris neon_tetris.py
+        Get-ChildItem dist
     
     - name: Upload Release Asset
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: dist/NeonTetris.exe
+        generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
